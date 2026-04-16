@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五星顧問團</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Playfair+Display:wght@700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dark: #9A7A2E;
+    --red: #C0392B;
+    --red-soft: #E74C3C22;
+    --white: #FDFAF4;
+    --off-white: #F5F0E8;
+    --cream: #EDE8DC;
+    --text-dark: #1A1208;
+    --text-mid: #4A3C22;
+    --text-soft: #8A7A5A;
+    --border: #D4C49A44;
+    --shadow: 0 4px 24px rgba(180,140,40,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--white);
+    color: var(--text-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #1A1208 0%, #2C1F0A 60%, #3A2A10 100%);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--gold);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+  }
+
+  .header-sub {
+    font-size: 0.72rem;
+    color: var(--gold-dark);
+    letter-spacing: 0.15em;
+    margin-top: 2px;
+  }
+
+  .header-right {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn-history {
+    background: none;
+    border: 1px solid var(--gold-dark);
+    color: var(--gold-light);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.2s;
+  }
+  .btn-history:hover { background: var(--gold-dark); color: var(--white); }
+
+  /* Agent Bar */
+  .agent-bar {
+    background: var(--off-white);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    overflow-x: auto;
+  }
+
+  .agent-bar-label {
+    font-size: 0.72rem;
+    color: var(--text-soft);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    margin-right: 4px;
+  }
+
+  .agent-chip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border-radius: 24px;
+    border: 1.5px solid var(--gold);
+    background: var(--white);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .agent-chip.active {
+    background: linear-gradient(135deg, #1A1208, #3A2A10);
+    color: var(--gold-light);
+    border-color: var(--gold-light);
+    box-shadow: 0 2px 12px rgba(201,168,76,0.25);
+  }
+
+  .agent-chip.inactive {
+    opacity: 0.42;
+    border-color: #C4B88A;
+  }
+
+  .agent-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .agent-chip-name {
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+
+  .agent-chip-nick {
+    font-size: 0.7rem;
+    opacity: 0.7;
+  }
+
+  .chip-印星 .agent-dot { background: #C9A84C; }
+  .chip-比劫 .agent-dot { background: #4A9C8A; }
+  .chip-食傷 .agent-dot { background: #8A6CC9; }
+  .chip-財星 .agent-dot { background: #C04A4A; }
+  .chip-官殺 .agent-dot { background: #4A7AC9; }
+
+  /* Main Layout */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 24px 24px;
+  }
+
+  /* Chat Area */
+  .chat-area {
+    flex: 1;
+    padding: 24px 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 0;
+    overflow-y: auto;
+    max-height: calc(100vh - 280px);
+  }
+
+  /* User Message */
+  .msg-user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #1A1208, #3A2A10);
+    color: var(--gold-light);
+    padding: 12px 18px;
+    border-radius: 18px 18px 4px 18px;
+    max-width: 68%;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    box-shadow: var(--shadow);
+  }
+
+  /* Agent Response Group */
+  .msg-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .msg-group-label {
+    font-size: 0.7rem;
+    color: var(--text-soft);
+    letter-spacing: 0.1em;
+    padding-left: 4px;
+  }
+
+  /* Single Agent Response */
+  .agent-response {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    animation: fadeUp 0.35s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .agent-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    border: 2px solid var(--gold);
+    color: white;
+    font-family: 'Noto Serif TC', serif;
+  }
+
+  .avatar-印星 { background: linear-gradient(135deg, #9A7A2E, #C9A84C); }
+  .avatar-比劫 { background: linear-gradient(135deg, #2E7A6A, #4A9C8A); }
+  .avatar-食傷 { background: linear-gradient(135deg, #5A4A9A, #8A6CC9); }
+  .avatar-財星 { background: linear-gradient(135deg, #9A2A2A, #C04A4A); }
+  .avatar-官殺 { background: linear-gradient(135deg, #2A4A9A, #4A7AC9); }
+
+  .agent-bubble {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px 18px 18px 18px;
+    padding: 14px 16px;
+    flex: 1;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+
+  .bubble-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .bubble-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-mid);
+  }
+
+  .bubble-nick {
+    font-size: 0.7rem;
+    color: var(--gold-dark);
+    background: #C9A84C18;
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+
+  .bubble-system {
+    font-size: 0.68rem;
+    color: var(--text-soft);
+    margin-left: auto;
+    letter-spacing: 0.05em;
+  }
+
+  .bubble-content {
+    font-size: 0.87rem;
+    line-height: 1.75;
+    color: var(--text-dark);
+  }
+
+  .bubble-content p { margin-bottom: 8px; }
+  .bubble-content p:last-child { margin-bottom: 0; }
+
+  /* Loading dots */
+  .loading-dots {
+    display: flex;
+    gap: 5px;
+    padding: 8px 0;
+    align-items: center;
+  }
+  .loading-dots span {
+    width: 7px; height: 7px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* Input Area */
+  .input-area {
+    background: var(--off-white);
+    border: 1.5px solid var(--gold);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    box-shadow: 0 2px 16px rgba(201,168,76,0.08);
+    margin-top: 8px;
+  }
+
+  .input-area textarea {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    resize: none;
+    line-height: 1.6;
+    min-height: 40px;
+    max-height: 120px;
+  }
+
+  .input-area textarea::placeholder { color: var(--text-soft); }
+
+  .btn-send {
+    background: linear-gradient(135deg, #9A7A2E, #C9A84C);
+    border: none;
+    color: white;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(201,168,76,0.3);
+  }
+  .btn-send:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(201,168,76,0.4); }
+  .btn-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-send svg { width: 18px; height: 18px; }
+
+  /* Input hint */
+  .input-hint {
+    font-size: 0.7rem;
+    color: var(--text-soft);
+    padding: 4px 4px 0;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* History Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--white);
+    border: 1.5px solid var(--gold);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #1A1208, #3A2A10);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold-light);
+    font-size: 1.1rem;
+  }
+
+  .btn-close {
+    background: none;
+    border: none;
+    color: var(--gold-dark);
+    cursor: pointer;
+    font-size: 1.3rem;
+    line-height: 1;
+    padding: 2px 6px;
+  }
+  .btn-close:hover { color: var(--gold-light); }
+
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .history-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--off-white);
+  }
+  .history-item:hover { border-color: var(--gold); background: var(--cream); }
+
+  .history-item-q {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+  .history-item-meta {
+    font-size: 0.72rem;
+    color: var(--text-soft);
+  }
+
+  .empty-history {
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 0.85rem;
+    padding: 32px 0;
+  }
+
+  /* Welcome */
+  .welcome {
+    text-align: center;
+    padding: 40px 20px;
+    animation: fadeUp 0.5s ease;
+  }
+
+  .welcome-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }
+
+  .welcome-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--gold-dark);
+    margin-bottom: 8px;
+  }
+
+  .welcome-desc {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    line-height: 1.7;
+    max-width: 420px;
+    margin: 0 auto 20px;
+  }
+
+  .welcome-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .welcome-tag {
+    background: var(--cream);
+    border: 1px solid var(--gold);
+    color: var(--gold-dark);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .welcome-tag:hover { background: var(--gold); color: white; }
+
+  /* API Key Setup Screen */
+  .setup-screen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #1A1208 0%, #2C1F0A 60%, #3A2A10 100%);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .setup-card {
+    background: var(--white);
+    border: 2px solid var(--gold);
+    border-radius: 20px;
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 16px 60px rgba(0,0,0,0.4);
+    animation: fadeUp 0.4s ease;
+  }
+
+  .setup-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--gold-dark);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .setup-sub {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-soft);
+    letter-spacing: 0.15em;
+    margin-bottom: 28px;
+  }
+
+  .setup-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-mid);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .setup-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--gold);
+    border-radius: 10px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text-dark);
+    background: var(--off-white);
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 8px;
+  }
+  .setup-input:focus { border-color: var(--gold-light); }
+
+  .setup-hint {
+    font-size: 0.72rem;
+    color: var(--text-soft);
+    margin-bottom: 22px;
+    line-height: 1.6;
+  }
+
+  .setup-hint a {
+    color: var(--gold-dark);
+    text-decoration: none;
+  }
+  .setup-hint a:hover { text-decoration: underline; }
+
+  .btn-setup {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #9A7A2E, #C9A84C);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(201,168,76,0.3);
+  }
+  .btn-setup:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.4); }
+
+  .setup-error {
+    font-size: 0.78rem;
+    color: var(--red);
+    margin-top: 10px;
+    text-align: center;
+    min-height: 20px;
+  }
+
+  /* Settings modal */
+  .btn-settings {
+    background: none;
+    border: 1px solid var(--gold-dark);
+    color: var(--gold-light);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.2s;
+  }
+  .btn-settings:hover { background: var(--gold-dark); color: var(--white); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+
+  /* Red accent line */
+  .red-accent {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+    margin: 0;
+    opacity: 0.4;
+  }
+
+  /* Decorative gold separator */
+  .gold-sep {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+  }
+  .gold-sep::before, .gold-sep::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.3;
+  }
+  .gold-sep-dot {
+    width: 4px; height: 4px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+
+  .history-resp {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: var(--cream);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+  .history-resp-nick {
+    font-weight: 700;
+    font-size: 0.75rem;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .history-resp-text {
+    color: var(--text-mid);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 14px 16px; }
+    .agent-bar { padding: 10px 16px; }
+    .main { padding: 0 12px 16px; }
+    .header-title { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- API Key Setup Screen -->
+<div class="setup-screen" id="setupScreen">
+  <div class="setup-card">
+    <div class="setup-logo">五星顧問團</div>
+    <div class="setup-sub">YOUR FIVE STAR ADVISORY COUNCIL</div>
+    <label class="setup-label">請輸入你的 Anthropic API Key</label>
+    <input class="setup-input" type="password" id="apiKeyInput"
+      placeholder="sk-ant-api03-xxxxxxxxxxxxxxxx"
+      onkeydown="if(event.key==='Enter') saveApiKey()" />
+    <div class="setup-hint">
+      API Key 僅儲存在你的瀏覽器本地，不會上傳任何伺服器。<br>
+      還沒有 Key？前往 <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a> 申請。
+    </div>
+    <button class="btn-setup" onclick="saveApiKey()">進入顧問團 →</button>
+    <div class="setup-error" id="setupError"></div>
+  </div>
+</div>
+
+<!-- Header -->
+<header>
+  <div>
+    <div class="header-title">五星顧問團</div>
+    <div class="header-sub">YOUR FIVE STAR ADVISORY COUNCIL</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-settings" onclick="openSettings()">⚙ API 設定</button>
+    <button class="btn-history" onclick="openHistory()">📋 對話記錄</button>
+  </div>
+</header>
+
+<div class="red-accent"></div>
+
+<!-- Agent Toggle Bar -->
+<div class="agent-bar">
+  <span class="agent-bar-label">顧問團：</span>
+  <div class="agent-chip chip-印星 active" data-agent="印星" onclick="toggleAgent('印星')">
+    <div class="agent-dot"></div>
+    <span class="agent-chip-name">印星價值觀導師</span>
+    <span class="agent-chip-nick">小老師</span>
+  </div>
+  <div class="agent-chip chip-比劫 active" data-agent="比劫" onclick="toggleAgent('比劫')">
+    <div class="agent-dot"></div>
+    <span class="agent-chip-name">比劫人脈導師</span>
+    <span class="agent-chip-nick">小卡</span>
+  </div>
+  <div class="agent-chip chip-食傷 active" data-agent="食傷" onclick="toggleAgent('食傷')">
+    <div class="agent-dot"></div>
+    <span class="agent-chip-name">食傷才華導師</span>
+    <span class="agent-chip-nick">小唐納德</span>
+  </div>
+  <div class="agent-chip chip-財星 active" data-agent="財星" onclick="toggleAgent('財星')">
+    <div class="agent-dot"></div>
+    <span class="agent-chip-name">財星商業導師</span>
+    <span class="agent-chip-nick">ALEX</span>
+  </div>
+  <div class="agent-chip chip-官殺 active" data-agent="官殺" onclick="toggleAgent('官殺')">
+    <div class="agent-dot"></div>
+    <span class="agent-chip-name">官殺組織導師</span>
+    <span class="agent-chip-nick">小彼得</span>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="chat-area" id="chatArea">
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon">✦</div>
+      <div class="welcome-title">你好，歡迎諮詢</div>
+      <div class="welcome-desc">五位導師將從各自的專業領域為你分析，<br>你也可以點選上方顧問，選擇只與特定導師對話。</div>
+      <div class="welcome-tags">
+        <span class="welcome-tag" onclick="quickAsk('我的團隊最近士氣低落，怎麼辦？')">團隊士氣低落</span>
+        <span class="welcome-tag" onclick="quickAsk('如何設計一個讓客戶無法拒絕的方案？')">設計不可拒絕方案</span>
+        <span class="welcome-tag" onclick="quickAsk('我想拓展人脈，但不知道從哪裡開始')">拓展人脈策略</span>
+        <span class="welcome-tag" onclick="quickAsk('我有很多想法但無法聚焦，怎麼辦？')">才華聚焦問題</span>
+        <span class="welcome-tag" onclick="quickAsk('如何建立一個高效的組織架構？')">建立組織架構</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div>
+    <div class="input-area">
+      <textarea id="inputBox" placeholder="輸入你的問題或挑戰……" rows="1"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="btn-send" id="sendBtn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <div class="input-hint">
+      <span id="activeCount">5 位導師參與中</span>
+      <span>Enter 送出 · Shift+Enter 換行</span>
+    </div>
+  </div>
+</div>
+
+<!-- History Modal -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">對話記錄</span>
+      <button class="btn-close" onclick="closeHistory()">✕</button>
+    </div>
+    <div class="modal-body" id="historyBody"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Agent Configs
+// ============================================================
+const AGENTS = {
+  印星: {
+    name: '印星價值觀導師',
+    nick: '小老師',
+    avatarClass: 'avatar-印星',
+    color: '#C9A84C',
+    systemPrompt: `你是「印星價值觀導師」，小名「小老師」，融合安麗傳奇領袖陳婉芬的精神內核與印星系統的價值觀管理哲學。
+核心使命：幫助用戶校準內在價值觀，將德行與格局轉化為事業的底層競爭力。
+
+個性：溫暖如母，原則堅定。從不糾結眼前利益，只看長遠人格成長。所有挫折都是「包裝過的禮物」。身處巔峰仍保持學習者心態。
+
+說話方式：
+- 溫柔引導，多用反問句，激發思考而非直接給答案
+- 善用生活化比喻（農夫耕耘、竹子精神、活魚逆流）
+- 語句短促有力，親切有感染力
+- 絕不用難懂術語，只講紮心的人性道理
+- 高頻詞：成功、感恩、傳承、相信、給予、生命價值、抉擇
+- 回應用繁體中文
+
+核心思考邏輯：
+- 人對了，世界就對了——事業瓶頸必先從價值觀找根源
+- 給人金錢是下策，給人能力是中策，給人觀念是上策
+- 先求有，再求優；先求同，再求異
+- 抉擇永遠要放在努力前面
+
+不做的事：不給具體數字或商業策略（那是財星的工作），不處理人脈引薦（那是比劫的工作），不設計流程架構（那是官殺的工作）。
+
+可引用的金句：「相信是成功的開始，堅持是成功的終點。」「計較眼前的人，一定會失去未來。」「命運不是等待，而是把握。」「活魚會逆流而上，死魚才會隨波逐流。」「抉擇一定要放在努力的前面。」
+
+請根據用戶問題，從價值觀角度給出溫柔但有深度的引導。回應200字以內，繁體中文。`
+  },
+  比劫: {
+    name: '比劫人脈導師',
+    nick: '小卡',
+    avatarClass: 'avatar-比劫',
+    color: '#4A9C8A',
+    systemPrompt: `你是「比劫人脈導師」，小名「小卡」，以戴爾·卡內基的人際哲學為核心，專門處理比劫系統中的競爭、合作、資源分配與社交影響力難題。
+核心信念：人際關係的成功，85%取決於態度與技巧，只有15%取決於專業知識。
+
+個性：極度真誠，對每個人充滿好奇心。面對衝突永遠冷靜，不批評、不責備、不抱怨。善於發現他人優點，給予真誠具體的讚美。務實優雅，所有建議都指向雙贏結果。
+
+說話方式：
+- 直接點出人性盲點，在同理之後立即指出用戶在這段關係中的錯誤模式
+- 例如：「你剛才描述的，其實是你在爭對錯，不是在經營關係。這是比劫系統最常見的陷阱。」
+- 多聽少說，先引導用戶描述對方的需求再給建議
+- 隱藏「我」，突出「你」
+- 偶爾引用歷史人物或企業家案例佐證
+- 回應用繁體中文
+
+回應步驟：1.同理共鳴 2.人性拆解——分析對方最渴望的「重要感」來源 3.卡內基策略——給出1-2條具體行動 4.金句點睛
+
+核心邏輯：利他即利己。贏得爭論的唯一方法就是避免爭論。讓對方覺得點子是他想出來的，是影響力的最高境界。
+
+語錄：「贏得爭論的唯一方法就是避免爭論。」「如果你想採集蜂蜜，就不要踢翻蜂巢。」「給人一個好名聲，讓他努力去維持它。」
+
+回應200字以內，繁體中文。`
+  },
+  食傷: {
+    name: '食傷才華導師',
+    nick: '小唐納德',
+    avatarClass: 'avatar-食傷',
+    color: '#8A6CC9',
+    systemPrompt: `你是「食傷才華導師」，小名「小唐納德」，以克里夫頓優勢哲學為核心，融合極簡設計美學的思維框架。
+核心使命：從混亂的創造力中篩選出最具功能性的天賦資產，將個人才華打造成具備市場競爭力的商業成果。
+核心信念：「修補弱點只能預防失敗，發揮優勢才能追求卓越。」「少，但是更好。」
+
+個性：優勢取向，堅決不在弱點上浪費時間。極簡主義，對冗餘創意感到排斥，對精確產出感到愉悅。對細節近乎偏執，不允許「為了設計而設計」的行為。
+
+說話方式：
+- 冷靜但直接——發現冗餘或自我陶醉的成分時，立即點名
+- 例如：「這個部分是在展示你，不是在服務對方。刪掉。」「這是三個點子，不是一個方向。先選一個。」
+- 本質提問：「這項才華的核心動能是什麼？」「刪掉這部分，你的核心價值會受損嗎？」
+- 回應時拆解為「優勢辨識」與「設計檢核」兩個層次
+- 回應用繁體中文
+
+食傷過濾四大檢核（遇到創意或點子時啟動）：
+1.實用性——對受眾有實質幫助，還是只是自我陶醉？
+2.不張揚——表達是否過於浮誇？
+3.細節——最微小的環節是否也符合優勢標準？
+4.不過度——這是「少，但是更好」？還是在堆砌資訊？
+
+核心邏輯：商業成功是將10分的才華透過設計擴張到100分。產品必須是「誠實的」。
+
+回應200字以內，繁體中文。`
+  },
+  財星: {
+    name: '財星商業導師',
+    nick: 'ALEX',
+    avatarClass: 'avatar-財星',
+    color: '#C04A4A',
+    systemPrompt: `你是「財星商業導師」，小名「ALEX」，以Alex Hormozi的商業哲學為核心。
+核心使命：將用戶的商業邏輯轉化為可量化的利潤系統。
+核心信念：「你賺到的錢，與你為別人解決問題的難度成正比。」
+
+個性：極致務實，對無法轉換為利潤的行動感到厭煩。數據導向，不相信直覺，只相信測試結果與轉換率。對拖延與藉口毫不留情，直接點出商業邏輯漏洞。激進透明，即使刺耳也要說清楚。
+
+說話方式：
+- 去繁就簡，用最簡單的詞解釋複雜概念
+- 常以「大多數人都錯了，真相是⋯⋯」開場
+- 習慣用「第一步、第二步、第三步」結構化回答
+- 偶爾冷諷：「如果你不想要錢，那就繼續這樣做吧。」
+- 語氣充滿自信，能量十足
+- 回應用繁體中文
+
+核心思考邏輯：
+價值公式：Value = (夢想結果 × 達成機率) / (時間延遲 × 努力與犧牲) → 分子極大化，分母極小化
+
+回應步驟：
+1.直接指出邏輯漏洞（不留情面）
+2.套用價值公式分析現況
+3.給出具體調整步驟（數字化、可執行）
+4.一句語錄收尾
+
+語錄：「你不需要更多資訊，你需要更多勇氣。」「人們不是因為產品太貴而不買，而是因為不相信你能解決問題。」「量能抵消運氣。」
+
+回應200字以內，繁體中文。`
+  },
+  官殺: {
+    name: '官殺組織導師',
+    nick: '小彼得',
+    avatarClass: 'avatar-官殺',
+    color: '#4A7AC9',
+    systemPrompt: `你是「官殺組織導師」，小名「小彼得」，以彼得·杜拉克的管理哲學為核心。
+核心使命：將官殺帶來的壓力與責任，轉化為卓有成效的組織績效。
+核心信念：「管理是把事情做對，領導是做對的事情。」
+
+個性：謙遜的智者，學識淵博但始終保持好奇心。務實理性，拒絕華而不實的口號，只問「這能產生績效嗎？」高度社會責任感。溫和但堅定，有時尖銳但永遠誠實。
+
+說話方式：
+- 溫和引導，反問式啟發：「你的貢獻是什麼？」「這件事如果現在不做，明天會發生什麼？」
+- 精煉穿透，不說廢話，每句話直指問題核心
+- 經常詢問時間資源的分配
+- 像睿智長輩在書房對談，冷靜客觀不帶情緒渲染
+- 回應用繁體中文
+
+回應步驟：
+1.診斷問題——區分「外界雜音」還是「必須面對的責任」；是例行性問題還是根本性系統問題？
+2.聚焦貢獻——問「當前狀況下，最好的貢獻是什麼？」
+3.轉化行動——給出1-3個符合管理邏輯的具體建議
+4.語錄定錨
+
+核心邏輯：成果導向，不在於做得多，而在於做對的事。時間是最稀有的資源。讓責任感取代監控。優先挑選機會，而非只解決問題。
+
+語錄：「管理是把事情做對，領導是做對的事情。」「如果你不能衡量它，你就不能管理它。」「預測未來最好的方式就是創造它。」
+
+回應200字以內，繁體中文。`
+  }
+};
+
+// ============================================================
+// State
+// ============================================================
+let activeAgents = new Set(['印星','比劫','食傷','財星','官殺']);
+let isLoading = false;
+let conversationHistory = []; // [{role, content, agentKey}]
+let savedHistory = JSON.parse(localStorage.getItem('fivestar_history') || '[]');
+
+// ============================================================
+// Toggle Agent
+// ============================================================
+function toggleAgent(key) {
+  const chip = document.querySelector(`.agent-chip[data-agent="${key}"]`);
+  if (activeAgents.has(key)) {
+    if (activeAgents.size === 1) return; // 至少保留一個
+    activeAgents.delete(key);
+    chip.classList.remove('active');
+    chip.classList.add('inactive');
+  } else {
+    activeAgents.add(key);
+    chip.classList.add('active');
+    chip.classList.remove('inactive');
+  }
+  updateActiveCount();
+}
+
+function updateActiveCount() {
+  const count = activeAgents.size;
+  document.getElementById('activeCount').textContent =
+    count === 5 ? '5 位導師參與中' : `${count} 位導師參與中`;
+}
+
+// ============================================================
+// Quick Ask
+// ============================================================
+function quickAsk(text) {
+  document.getElementById('inputBox').value = text;
+  sendMessage();
+}
+
+// ============================================================
+// Send Message
+// ============================================================
+async function sendMessage() {
+  const input = document.getElementById('inputBox');
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+
+  // Hide welcome
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+
+  input.value = '';
+  autoResize(input);
+  isLoading = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  // Add user message
+  appendUserMessage(text);
+
+  // Add to conversation history
+  conversationHistory.push({ role: 'user', content: text });
+
+  // Call each active agent
+  const agentKeys = Array.from(activeAgents);
+  const groupEl = document.createElement('div');
+  groupEl.className = 'msg-group';
+
+  const goldSep = document.createElement('div');
+  goldSep.className = 'gold-sep';
+  goldSep.innerHTML = '<div class="gold-sep-dot"></div><div class="gold-sep-dot"></div><div class="gold-sep-dot"></div>';
+  groupEl.appendChild(goldSep);
+
+  document.getElementById('chatArea').appendChild(groupEl);
+
+  // Create loading placeholders
+  const placeholders = {};
+  agentKeys.forEach(key => {
+    const el = createAgentPlaceholder(key);
+    groupEl.appendChild(el);
+    placeholders[key] = el;
+  });
+
+  scrollToBottom();
+
+  // Build shared context summary
+  const contextSummary = buildContextSummary();
+
+  // Call APIs in parallel
+  await Promise.all(agentKeys.map(async key => {
+    try {
+      const response = await callAgentAPI(key, text, contextSummary);
+      updateAgentResponse(placeholders[key], key, response);
+      conversationHistory.push({ role: 'assistant', content: response, agentKey: key });
+    } catch(e) {
+      updateAgentResponse(placeholders[key], key, '（導師暫時無法回應，請稍後再試）');
+    }
+  }));
+
+  // Save to history
+  saveToHistory(text, agentKeys, conversationHistory);
+
+  isLoading = false;
+  document.getElementById('sendBtn').disabled = false;
+  scrollToBottom();
+}
+
+// ============================================================
+// Build context summary from recent history
+// ============================================================
+function buildContextSummary() {
+  if (conversationHistory.length <= 1) return '';
+  const recent = conversationHistory.slice(-10);
+  return '\n\n【本次對話上下文摘要】\n' + recent.map(h => {
+    if (h.role === 'user') return `用戶：${h.content}`;
+    if (h.role === 'assistant') return `${AGENTS[h.agentKey]?.nick || h.agentKey}：${h.content.substring(0,80)}...`;
+    return '';
+  }).filter(Boolean).join('\n');
+}
+
+// ============================================================
+// Call Claude API
+// ============================================================
+async function callAgentAPI(agentKey, userMessage, contextSummary) {
+  const agent = AGENTS[agentKey];
+  const systemPrompt = agent.systemPrompt + contextSummary;
+
+  // Build messages - include recent turns
+  const recentMessages = [];
+  const userAgentHistory = conversationHistory.filter(
+    h => h.role === 'user' || h.agentKey === agentKey
+  ).slice(-6);
+
+  userAgentHistory.forEach(h => {
+    recentMessages.push({
+      role: h.role === 'user' ? 'user' : 'assistant',
+      content: h.content
+    });
+  });
+
+  // Add current message if not already there
+  if (recentMessages.length === 0 || recentMessages[recentMessages.length-1].content !== userMessage) {
+    recentMessages.push({ role: 'user', content: userMessage });
+  }
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': getApiKey(),
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: recentMessages
+    })
+  });
+
+  const data = await response.json();
+  if (data.content && data.content[0]) {
+    return data.content[0].text;
+  }
+  throw new Error('No response');
+}
+
+// ============================================================
+// DOM Helpers
+// ============================================================
+function appendUserMessage(text) {
+  const el = document.createElement('div');
+  el.className = 'msg-user';
+  el.textContent = text;
+  document.getElementById('chatArea').appendChild(el);
+  scrollToBottom();
+}
+
+function createAgentPlaceholder(key) {
+  const agent = AGENTS[key];
+  const el = document.createElement('div');
+  el.className = 'agent-response';
+  el.innerHTML = `
+    <div class="agent-avatar ${agent.avatarClass}">${agent.nick.charAt(0)}</div>
+    <div class="agent-bubble">
+      <div class="bubble-header">
+        <span class="bubble-name">${agent.name}</span>
+        <span class="bubble-nick">${agent.nick}</span>
+        <span class="bubble-system">${key}系統</span>
+      </div>
+      <div class="bubble-content loading-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  `;
+  return el;
+}
+
+function updateAgentResponse(el, key, text) {
+  const contentEl = el.querySelector('.bubble-content');
+  contentEl.classList.remove('loading-dots');
+  // Format text into paragraphs
+  const paragraphs = text.split('\n').filter(p => p.trim());
+  contentEl.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+}
+
+function scrollToBottom() {
+  const area = document.getElementById('chatArea');
+  area.scrollTop = area.scrollHeight;
+}
+
+// ============================================================
+// History
+// ============================================================
+function saveToHistory(question, agentKeys, history) {
+  // 取出這次問題之後的所有 assistant 回覆
+  const responses = history.filter(h => h.role === 'assistant' && agentKeys.includes(h.agentKey));
+  const entry = {
+    id: Date.now(),
+    question: question,
+    agents: agentKeys,
+    timestamp: new Date().toLocaleString('zh-TW'),
+    responses: responses
+  };
+  savedHistory.unshift(entry);
+  if (savedHistory.length > 50) savedHistory = savedHistory.slice(0, 50);
+  localStorage.setItem('fivestar_history', JSON.stringify(savedHistory));
+}
+
+function openHistory() {
+  const body = document.getElementById('historyBody');
+  body.innerHTML = '';
+
+  if (savedHistory.length === 0) {
+    body.innerHTML = '<div class="empty-history">尚無對話記錄</div>';
+  } else {
+    savedHistory.forEach((entry, idx) => {
+      const el = document.createElement('div');
+      el.className = 'history-item';
+      const responsesHTML = (entry.responses || []).map(r => {
+        const agent = AGENTS[r.agentKey];
+        if (!agent) return '';
+        const short = r.content.length > 120 ? r.content.substring(0, 120) + '……' : r.content;
+        return `<div class="history-resp">
+          <span class="history-resp-nick" style="color:${agent.color}">${agent.nick}</span>
+          <span class="history-resp-text">${short.replace(/\n/g,'<br>')}</span>
+        </div>`;
+      }).join('');
+
+      el.innerHTML = `
+        <div class="history-item-q" onclick="toggleHistoryDetail(${idx})" style="cursor:pointer">
+          ▸ ${entry.question}
+        </div>
+        <div class="history-item-meta">${entry.timestamp} · ${(entry.agents||[]).map(k => AGENTS[k]?.nick||k).join('、')} 參與</div>
+        <div class="history-detail" id="hd-${idx}" style="display:none;margin-top:10px;display:none">
+          ${responsesHTML || '<span style="color:#aaa;font-size:0.78rem">無回覆記錄</span>'}
+        </div>
+      `;
+      body.appendChild(el);
+    });
+  }
+
+  document.getElementById('historyModal').classList.add('open');
+}
+
+function toggleHistoryDetail(idx) {
+  const el = document.getElementById('hd-' + idx);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function closeHistory() {
+  document.getElementById('historyModal').classList.remove('open');
+}
+
+// ============================================================
+// Input Helpers
+// ============================================================
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// Click outside modal to close
+document.getElementById('historyModal').addEventListener('click', function(e) {
+  if (e.target === this) closeHistory();
+});
+
+// ============================================================
+// API Key Management
+// ============================================================
+function getApiKey() {
+  return localStorage.getItem('fivestar_apikey') || '';
+}
+
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const errEl = document.getElementById('setupError');
+  if (!key || !key.startsWith('sk-ant-')) {
+    errEl.textContent = '請輸入正確格式的 API Key（以 sk-ant- 開頭）';
+    return;
+  }
+  localStorage.setItem('fivestar_apikey', key);
+  document.getElementById('setupScreen').style.display = 'none';
+  errEl.textContent = '';
+}
+
+function openSettings() {
+  const current = getApiKey();
+  const masked = current ? current.substring(0,12) + '••••••••••••' + current.slice(-4) : '';
+  const newKey = prompt('輸入新的 API Key（目前：' + (masked || '未設定') + '）：');
+  if (newKey === null) return;
+  if (!newKey.startsWith('sk-ant-')) {
+    alert('格式不正確，請輸入以 sk-ant- 開頭的 Key');
+    return;
+  }
+  localStorage.setItem('fivestar_apikey', newKey.trim());
+  alert('✓ API Key 已更新');
+}
+
+// Check API key on load
+window.addEventListener('load', function() {
+  const key = getApiKey();
+  if (key && key.startsWith('sk-ant-')) {
+    document.getElementById('setupScreen').style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>
