@@ -760,7 +760,6 @@
 <!-- Avatar Bar -->
 <div class="avatar-bar">
   <div class="avatar-row">
-  <!-- 印星：小老師 - 陳婉芬風格，慈祥女性長者，金色調 -->
   <div class="avatar-item active" data-agent="印星" onclick="toggleAgent('印星')">
     <div class="avatar-circle">
       <svg class="avatar-svg" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
@@ -782,8 +781,6 @@
     <div class="avatar-nick">小老師</div>
     <div class="avatar-system">印星</div>
   </div>
-
-  <!-- 比劫：小卡 - 卡內基紳士，1930s西裝，眼鏡，綠色調 -->
   <div class="avatar-item active" data-agent="比劫" onclick="toggleAgent('比劫')">
     <div class="avatar-circle">
       <svg class="avatar-svg" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
@@ -806,9 +803,8 @@
     <div class="avatar-nick">小卡</div>
     <div class="avatar-system">比劫</div>
   </div>
-  </div><!-- end row 1 -->
+  </div>
   <div class="avatar-row">
-  <!-- 食傷：小唐納德 - 設計師，高領黑衫，深邃眼神，紫色調 -->
   <div class="avatar-item active" data-agent="食傷" onclick="toggleAgent('食傷')">
     <div class="avatar-circle">
       <svg class="avatar-svg" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
@@ -831,8 +827,6 @@
     <div class="avatar-nick">小唐納德</div>
     <div class="avatar-system">食傷</div>
   </div>
-
-  <!-- 財星：ALEX - Hormozi風格，肌肉壯碩，鬍鬚，背心，紅色調 -->
   <div class="avatar-item active" data-agent="財星" onclick="toggleAgent('財星')">
     <div class="avatar-circle">
       <svg class="avatar-svg" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
@@ -854,8 +848,6 @@
     <div class="avatar-nick">ALEX</div>
     <div class="avatar-system">財星</div>
   </div>
-
-  <!-- 官殺：小彼得 - 杜拉克風格，老紳士，黑框眼鏡，西裝，藍色調 -->
   <div class="avatar-item active" data-agent="官殺" onclick="toggleAgent('官殺')">
     <div class="avatar-circle">
       <svg class="avatar-svg" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
@@ -879,7 +871,7 @@
     <div class="avatar-nick">小彼得</div>
     <div class="avatar-system">官殺</div>
   </div>
-  </div><!-- end row 2 -->
+  </div>
 </div>
 
 <!-- Main -->
@@ -1192,7 +1184,8 @@ async function sendMessage() {
       updateAgentResponse(placeholders[key], key, response);
       conversationHistory.push({ role: 'assistant', content: response, agentKey: key });
     } catch(e) {
-      updateAgentResponse(placeholders[key], key, '（導師暫時無法回應，請稍後再試）');
+      console.error(key, e);
+      updateAgentResponse(placeholders[key], key, '錯誤：' + (e.message || e.toString()));
     }
   }));
 
@@ -1270,11 +1263,18 @@ async function callAgentAPI(agentKey, userMessage, contextSummary, imgBase64) {
     })
   });
 
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error('HTTP ' + response.status + ': ' + errText.substring(0, 200));
+  }
   const data = await response.json();
   if (data.content && data.content[0]) {
     return data.content[0].text;
   }
-  throw new Error('No response');
+  if (data.error) {
+    throw new Error(data.error.message || JSON.stringify(data.error));
+  }
+  throw new Error('No response: ' + JSON.stringify(data).substring(0, 200));
 }
 
 // ============================================================
